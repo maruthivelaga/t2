@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Appointment Analytics Report</title>
+    <style>
+        .analytics-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .analytics-section h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card.green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .stat-card.orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .stat-card.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .distribution-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .distribution-table th {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .distribution-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .distribution-table tr:hover {
+            background: #f8f9fa;
+        }
+        .progress-bar {
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        .top-records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .top-records-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        .top-records-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .badge-scheduled { background: #3498db; color: white; }
+        .badge-confirmed { background: #2ecc71; color: white; }
+        .badge-cancelled { background: #e74c3c; color: white; }
+        .badge-completed { background: #95a5a6; color: white; }
+        .badge-no-show { background: #e67e22; color: white; }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+        <h1 class="mb-4">
+            <i class="fas fa-chart-bar"></i> Appointment Analytics Report
+        </h1>
+        
+        <!-- Basic Statistics -->
+        <div class="analytics-section">
+            <h3><i class="fas fa-info-circle"></i> Basic Statistics</h3>
+            <div class="stat-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">Total Records</div>
+                    <div class="stat-value" th:text="${analytics.totalRecordCount}">0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Active Appointments</div>
+                    <div class="stat-value" th:text="${analytics.activeAppointmentsCount}">0</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">Inactive Appointments</div>
+                    <div class="stat-value" th:text="${analytics.inactiveAppointmentsCount}">0</div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Oldest Record:</strong> 
+                        <span th:text="${#temporals.format(analytics.oldestRecordTimestamp, 'yyyy-MM-dd HH:mm')}">N/A</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Latest Record:</strong> 
+                        <span th:text="${#temporals.format(analytics.latestRecordTimestamp, 'yyyy-MM-dd HH:mm')}">N/A</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Distribution -->
+        <div class="analytics-section">
+            <h3><i class="fas fa-chart-pie"></i> Distribution by Status</h3>
+            <table class="distribution-table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Count</th>
+                        <th style="width: 40%;">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="dist : ${analytics.statusDistribution}">
+                        <td th:text="${dist.category}">Status</td>
+                        <td th:text="${dist.count}">0</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" 
+                                     th:style="'width: ' + ${dist.percentage} + '%'"></div>
+                            </div>
+                            <span th:text="${#numbers.formatDecimal(dist.percentage, 1, 2)} + '%'">0%</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Doctor Distribution -->
+        <div class="analytics-section">
+            <h3><i class="fas fa-user-md"></i> Distribution by Doctor</h3>
+            <table class="distribution-table">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Appointments</th>
+                        <th style="width: 40%;">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="dist : ${analytics.doctorDistribution}">
+                        <td th:text="${dist.category}">Doctor</td>
+                        <td th:text="${dist.count}">0</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" 
+                                     th:style="'width: ' + ${dist.percentage} + '%'"></div>
+                            </div>
+                            <span th:text="${#numbers.formatDecimal(dist.percentage, 1, 2)} + '%'">0%</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Numeric Aggregates -->
+        <div class="analytics-section">
+            <h3><i class="fas fa-dollar-sign"></i> Consultation Fee Aggregates</h3>
+            <div class="stat-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">Average Fee</div>
+                    <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(analytics.feeAggregates.average, 1, 2)}">₹0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Minimum Fee</div>
+                    <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(analytics.feeAggregates.minimum, 1, 2)}">₹0</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">Maximum Fee</div>
+                    <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(analytics.feeAggregates.maximum, 1, 2)}">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(analytics.feeAggregates.sum, 1, 2)}">₹0</div>
+                </div>
+            </div>
+            <p><strong>Records with Fee:</strong> <span th:text="${analytics.feeAggregates.recordsWithValues}">0</span></p>
+        </div>
+        
+        <!-- Ageing Analysis -->
+        <div class="analytics-section">
+            <h3><i class="fas fa-hourglass-half"></i> Ageing Analysis (Time Since Creation)</h3>
+            <table class="distribution-table">
+                <thead>
+                    <tr>
+                        <th>Age Bucket</th>
+                        <th>Count</th>
+                        <th style="width: 40%;">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="bucket : ${analytics.ageingAnalysis}">
+                        <td th:text="${bucket.bucket}">Bucket</td>
+                        <td th:text="${bucket.count}">0</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" 
+                                     th:style="'width: ' + ${bucket.percentage} + '%'"></div>
+                            </div>
+                            <span th:text="${#numbers.formatDecimal(bucket.percentage, 1, 2)} + '%'">0%</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Top 5 Newest Records -->
+        <div class="analytics-section">
+            <h3><i class="fas fa-calendar-plus"></i> Top 5 Newest Appointments</h3>
+            <table class="top-records-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Appointment Date</th>
+                        <th>Fee</th>
+                        <th>Created</th>
+                        <th>Days Old</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appt : ${analytics.top5NewestRecords}">
+                        <td th:text="${appt.id}">#</td>
+                        <td th:text="${appt.patientName}">Patient</td>
+                        <td th:text="${appt.doctorName}">Doctor</td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="'badge-' + ${#strings.toLowerCase(appt.status)}"
+                                  th:text="${appt.status}">Status</span>
+                        </td>
+                        <td th:text="${#temporals.format(appt.appointmentDateTime, 'yyyy-MM-dd HH:mm')}">Date</td>
+                        <td th:text="'₹' + ${appt.consultationFee != null ? #numbers.formatDecimal(appt.consultationFee, 1, 2) : 'N/A'}">Fee</td>
+                        <td th:text="${#temporals.format(appt.createdAt, 'yyyy-MM-dd HH:mm')}">Created</td>
+                        <td th:text="${appt.daysOld} + ' days'">0 days</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Top 5 Highest Fee Records -->
+        <div class="analytics-section">
+            <h3><i class="fas fa-trophy"></i> Top 5 Highest Consultation Fees</h3>
+            <table class="top-records-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Appointment Date</th>
+                        <th>Fee</th>
+                        <th>Created</th>
+                        <th>Days Old</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appt : ${analytics.top5HighestFeeRecords}">
+                        <td th:text="${appt.id}">#</td>
+                        <td th:text="${appt.patientName}">Patient</td>
+                        <td th:text="${appt.doctorName}">Doctor</td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="'badge-' + ${#strings.toLowerCase(appt.status)}"
+                                  th:text="${appt.status}">Status</span>
+                        </td>
+                        <td th:text="${#temporals.format(appt.appointmentDateTime, 'yyyy-MM-dd HH:mm')}">Date</td>
+                        <td><strong th:text="'₹' + ${#numbers.formatDecimal(appt.consultationFee, 1, 2)}">Fee</strong></td>
+                        <td th:text="${#temporals.format(appt.createdAt, 'yyyy-MM-dd HH:mm')}">Created</td>
+                        <td th:text="${appt.daysOld} + ' days'">0 days</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="text-center mb-4">
+            <a href="/" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            <a href="/analytics/appointments/report" class="btn btn-primary" target="_blank">
+                <i class="fas fa-download"></i> View JSON Report
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

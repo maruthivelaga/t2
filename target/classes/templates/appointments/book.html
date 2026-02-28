@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Hospital Appointment System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; }
+        .navbar { background-color: #2c3e50; color: white; padding: 1rem 2rem; }
+        .navbar-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; }
+        .navbar-menu { display: flex; gap: 1.5rem; align-items: center; }
+        .navbar-link { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; transition: background-color 0.3s; }
+        .navbar-link:hover { background-color: #34495e; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
+        .card-title { font-size: 1.8rem; color: #2c3e50; margin-bottom: 1.5rem; border-bottom: 3px solid #3498db; padding-bottom: 0.5rem; }
+        .alert-error { padding: 1rem; border-radius: 4px; margin-bottom: 1rem; background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-control:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
+        .error-message { color: #e74c3c; font-size: 0.875rem; margin-top: 0.25rem; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s; }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-primary:hover { background-color: #2980b9; }
+        .btn-secondary { background-color: #95a5a6; color: white; margin-left: 0.5rem; }
+        .btn-secondary:hover { background-color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a th:href="@{/}" class="navbar-brand">🏥 Hospital Appointment System</a>
+            <div class="navbar-menu">
+                <a th:href="@{/patient/dashboard}" class="navbar-link">Dashboard</a>
+                <a th:href="@{/doctors}" class="navbar-link">Doctors</a>
+                <a th:href="@{/appointments}" class="navbar-link">My Appointments</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="navbar-link" style="background: none; border: none; cursor: pointer; color: white;">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <h2 class="card-title">Book an Appointment</h2>
+            
+            <div th:if="${errorMessage}" class="alert-error" th:text="${errorMessage}"></div>
+            
+            <form th:action="@{/appointments/book}" th:object="${appointmentRequest}" method="post">
+                
+                <div class="form-group">
+                    <label for="specialty" class="form-label">Select Specialty (Optional Filter)</label>
+                    <select id="specialty" class="form-control" 
+                            onchange="window.location.href='/appointments/book?specialtyId=' + this.value">
+                        <option value="">All Specialties</option>
+                        <option th:each="specialty : ${specialties}" 
+                                th:value="${specialty.id}" 
+                                th:text="${specialty.name}"
+                                th:selected="${selectedSpecialtyId != null && selectedSpecialtyId == specialty.id}"></option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="doctorId" class="form-label">Select Doctor *</label>
+                    <select id="doctorId" th:field="*{doctorId}" class="form-control" required>
+                        <option value="">Choose a doctor</option>
+                        <option th:each="doctor : ${doctors}" 
+                                th:value="${doctor.id}" 
+                                th:text="${doctor.fullName + ' - ' + doctor.specialty.name}"></option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="appointmentDateTime" class="form-label">Appointment Date & Time *</label>
+                    <input type="datetime-local" id="appointmentDateTime" th:field="*{appointmentDateTime}" 
+                           class="form-control" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('appointmentDateTime')}" 
+                         th:errors="*{appointmentDateTime}"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reason" class="form-label">Reason for Visit</label>
+                    <textarea id="reason" th:field="*{reason}" class="form-control" rows="4" 
+                              placeholder="Describe your symptoms or reason for consultation"></textarea>
+                </div>
+                
+                <div>
+                    <button type="submit" class="btn btn-primary">Book Appointment</button>
+                    <a th:href="@{/appointments}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

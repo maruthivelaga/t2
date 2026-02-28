@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Details - Hospital Appointment System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; }
+        .navbar { background-color: #2c3e50; color: white; padding: 1rem 2rem; }
+        .navbar-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; }
+        .navbar-menu { display: flex; gap: 1.5rem; align-items: center; }
+        .navbar-link { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; transition: background-color 0.3s; }
+        .navbar-link:hover { background-color: #34495e; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
+        .card-title { font-size: 2rem; color: #2c3e50; margin-bottom: 0.5rem; }
+        .specialty-badge { background-color: #3498db; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; display: inline-block; margin-bottom: 1.5rem; }
+        .detail-row { margin-bottom: 1.5rem; }
+        .detail-label { font-weight: 600; color: #2c3e50; display: block; margin-bottom: 0.5rem; }
+        .detail-value { color: #555; font-size: 1.1rem; }
+        .btn { padding: 0.875rem 1.75rem; border: none; border-radius: 4px; font-size: 1.1rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s; margin-right: 0.5rem; }
+        .btn-primary { background-color: #27ae60; color: white; }
+        .btn-primary:hover { background-color: #229954; }
+        .btn-secondary { background-color: #95a5a6; color: white; }
+        .btn-secondary:hover { background-color: #7f8c8d; }
+        .availability-status { display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; }
+        .available { background-color: #27ae60; color: white; }
+        .unavailable { background-color: #e74c3c; color: white; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a th:href="@{/}" class="navbar-brand">🏥 Hospital Appointment System</a>
+            <div class="navbar-menu">
+                <a th:href="@{/patient/dashboard}" class="navbar-link">Dashboard</a>
+                <a th:href="@{/doctors}" class="navbar-link">Doctors</a>
+                <a th:href="@{/appointments}" class="navbar-link">My Appointments</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="navbar-link" style="background: none; border: none; cursor: pointer; color: white;">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <h2 class="card-title" th:text="${doctor.fullName}"></h2>
+            <span class="specialty-badge" th:text="${doctor.specialty.name}"></span>
+            
+            <div class="detail-row">
+                <span class="detail-label">Availability:</span>
+                <span class="availability-status" th:classappend="${doctor.available ? 'available' : 'unavailable'}"
+                      th:text="${doctor.available ? 'Available' : 'Not Available'}"></span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">License Number:</span>
+                <span class="detail-value" th:text="${doctor.licenseNumber}"></span>
+            </div>
+            
+            <div class="detail-row" th:if="${doctor.yearsOfExperience}">
+                <span class="detail-label">Years of Experience:</span>
+                <span class="detail-value" th:text="${doctor.yearsOfExperience} + ' years'"></span>
+            </div>
+            
+            <div class="detail-row" th:if="${doctor.qualifications}">
+                <span class="detail-label">Qualifications:</span>
+                <span class="detail-value" th:text="${doctor.qualifications}"></span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" th:text="${doctor.email}"></span>
+            </div>
+            
+            <div class="detail-row" th:if="${doctor.phoneNumber}">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value" th:text="${doctor.phoneNumber}"></span>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <a th:if="${doctor.available}" 
+                   th:href="@{/appointments/book(doctorId=${doctor.id})}" 
+                   class="btn btn-primary">
+                    📅 Book Appointment
+                </a>
+                <a th:href="@{/doctors}" class="btn btn-secondary">← Back to Doctors</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

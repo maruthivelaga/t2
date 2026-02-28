@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Hospital Appointment System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+        
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .navbar-link:hover {
+            background-color: #34495e;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .action-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .badge-scheduled {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .badge-confirmed {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a th:href="@{/}" class="navbar-brand">🏥 Hospital Appointment System</a>
+            <div class="navbar-menu">
+                <a th:href="@{/patient/dashboard}" class="navbar-link">Dashboard</a>
+                <a th:href="@{/doctors}" class="navbar-link">Doctors</a>
+                <a th:href="@{/appointments}" class="navbar-link">My Appointments</a>
+                <a th:href="@{/patient/profile}" class="navbar-link">Profile</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="navbar-link" 
+                            style="background: none; border: none; cursor: pointer; color: white;">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Welcome, <span th:text="${patient.firstName}">Patient</span>!</h1>
+            <p>Manage your appointments and health records</p>
+        </div>
+        
+        <div class="quick-actions">
+            <div class="action-card">
+                <div class="action-icon">📅</div>
+                <h3 class="action-title">Book Appointment</h3>
+                <p>Schedule a new appointment</p>
+                <a th:href="@{/appointments/book}" class="btn btn-primary">Book Now</a>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">👨‍⚕️</div>
+                <h3 class="action-title">Browse Doctors</h3>
+                <p>Find doctors by specialty</p>
+                <a th:href="@{/doctors}" class="btn btn-primary">View Doctors</a>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">📋</div>
+                <h3 class="action-title">My Appointments</h3>
+                <p>View all appointments</p>
+                <a th:href="@{/appointments}" class="btn btn-primary">View All</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Upcoming Appointments</h2>
+            
+            <div th:if="${#lists.isEmpty(upcomingAppointments)}" class="empty-state">
+                <p>You have no upcoming appointments</p>
+                <a th:href="@{/appointments/book}" class="btn btn-primary" 
+                   style="margin-top: 1rem;">Book Your First Appointment</a>
+            </div>
+            
+            <table th:if="${!#lists.isEmpty(upcomingAppointments)}">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Doctor</th>
+                        <th>Specialty</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appointment : ${upcomingAppointments}">
+                        <td th:text="${#temporals.format(appointment.appointmentDateTime, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td th:text="${appointment.doctor.fullName}"></td>
+                        <td th:text="${appointment.doctor.specialty.name}"></td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="'badge-' + ${#strings.toLowerCase(appointment.status)}"
+                                  th:text="${appointment.status}"></span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/appointments/' + ${appointment.id}}" class="btn btn-primary" 
+                               style="padding: 0.5rem 1rem; font-size: 0.875rem;">View</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

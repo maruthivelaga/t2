@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Hospital Appointment System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .register-header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .register-header p {
+            color: #7f8c8d;
+        }
+        
+        .alert-error {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #5568d3;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #7f8c8d;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>🏥 Create Account</h1>
+            <p>Register as a new patient</p>
+        </div>
+        
+        <div th:if="${errorMessage}" class="alert-error" th:text="${errorMessage}"></div>
+        
+        <form th:action="@{/register}" th:object="${registrationDto}" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName" class="form-label">First Name *</label>
+                    <input type="text" id="firstName" th:field="*{firstName}" class="form-control" 
+                           placeholder="John" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('firstName')}" 
+                         th:errors="*{firstName}"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName" class="form-label">Last Name *</label>
+                    <input type="text" id="lastName" th:field="*{lastName}" class="form-control" 
+                           placeholder="Doe" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('lastName')}" 
+                         th:errors="*{lastName}"></div>
+                </div>
+            </div>
+            
+            <div class="form-group form-group-full">
+                <label for="username" class="form-label">Username *</label>
+                <input type="text" id="username" th:field="*{username}" class="form-control" 
+                       placeholder="johndoe" required>
+                <div class="error-message" th:if="${#fields.hasErrors('username')}" 
+                     th:errors="*{username}"></div>
+            </div>
+            
+            <div class="form-group form-group-full">
+                <label for="email" class="form-label">Email *</label>
+                <input type="email" id="email" th:field="*{email}" class="form-control" 
+                       placeholder="john.doe@example.com" required>
+                <div class="error-message" th:if="${#fields.hasErrors('email')}" 
+                     th:errors="*{email}"></div>
+            </div>
+            
+            <div class="form-group form-group-full">
+                <label for="password" class="form-label">Password *</label>
+                <input type="password" id="password" th:field="*{password}" class="form-control" 
+                       placeholder="Min 6 characters" required>
+                <div class="error-message" th:if="${#fields.hasErrors('password')}" 
+                     th:errors="*{password}"></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                    <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="gender" th:field="*{gender}" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group form-group-full">
+                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <input type="text" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" 
+                       placeholder="1234567890" pattern="[0-9]{10}">
+                <div class="error-message" th:if="${#fields.hasErrors('phoneNumber')}" 
+                     th:errors="*{phoneNumber}"></div>
+            </div>
+            
+            <div class="form-group form-group-full">
+                <label for="address" class="form-label">Address</label>
+                <textarea id="address" th:field="*{address}" class="form-control" rows="3"
+                          placeholder="Enter your address"></textarea>
+            </div>
+            
+            <button type="submit" class="btn">Register</button>
+        </form>
+        
+        <div class="login-link">
+            Already have an account? <a th:href="@{/login}">Login here</a>
+        </div>
+    </div>
+</body>
+</html>

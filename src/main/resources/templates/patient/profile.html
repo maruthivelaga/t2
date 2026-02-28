@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Profile - Hospital Appointment System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; }
+        .navbar { background-color: #2c3e50; color: white; padding: 1rem 2rem; }
+        .navbar-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; }
+        .navbar-menu { display: flex; gap: 1.5rem; align-items: center; }
+        .navbar-link { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; transition: background-color 0.3s; }
+        .navbar-link:hover { background-color: #34495e; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
+        .card-title { font-size: 1.8rem; color: #2c3e50; margin-bottom: 1.5rem; border-bottom: 3px solid #3498db; padding-bottom: 0.5rem; }
+        .profile-info { margin-bottom: 1rem; }
+        .info-label { font-weight: 600; color: #2c3e50; display: inline-block; width: 150px; }
+        .info-value { color: #555; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a th:href="@{/}" class="navbar-brand">🏥 Hospital Appointment System</a>
+            <div class="navbar-menu">
+                <a th:href="@{/patient/dashboard}" class="navbar-link">Dashboard</a>
+                <a th:href="@{/doctors}" class="navbar-link">Doctors</a>
+                <a th:href="@{/appointments}" class="navbar-link">My Appointments</a>
+                <a th:href="@{/patient/profile}" class="navbar-link">Profile</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="navbar-link" style="background: none; border: none; cursor: pointer; color: white;">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <h2 class="card-title">My Profile</h2>
+            
+            <div class="profile-info">
+                <span class="info-label">Full Name:</span>
+                <span class="info-value" th:text="${patient.fullName}"></span>
+            </div>
+            
+            <div class="profile-info">
+                <span class="info-label">Email:</span>
+                <span class="info-value" th:text="${patient.user.email}"></span>
+            </div>
+            
+            <div class="profile-info">
+                <span class="info-label">Username:</span>
+                <span class="info-value" th:text="${patient.user.username}"></span>
+            </div>
+            
+            <div class="profile-info" th:if="${patient.dateOfBirth}">
+                <span class="info-label">Date of Birth:</span>
+                <span class="info-value" th:text="${#temporals.format(patient.dateOfBirth, 'dd-MM-yyyy')}"></span>
+            </div>
+            
+            <div class="profile-info" th:if="${patient.gender}">
+                <span class="info-label">Gender:</span>
+                <span class="info-value" th:text="${patient.gender}"></span>
+            </div>
+            
+            <div class="profile-info" th:if="${patient.phoneNumber}">
+                <span class="info-label">Phone Number:</span>
+                <span class="info-value" th:text="${patient.phoneNumber}"></span>
+            </div>
+            
+            <div class="profile-info" th:if="${patient.address}">
+                <span class="info-label">Address:</span>
+                <span class="info-value" th:text="${patient.address}"></span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
